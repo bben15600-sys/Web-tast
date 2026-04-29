@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/api/daily-insight", "destination": "/api/ai?type=daily-insight" },
+    { "source": "/api/health-insight", "destination": "/api/ai?type=health-insight" },
+    { "source": "/api/parse-recipe-url", "destination": "/api/ai?type=parse-recipe-url" },
+    { "source": "/api/chat-env-check", "destination": "/api/chat-diag?check=env" },
+    { "source": "/api/chat-models-check", "destination": "/api/chat-diag?check=models" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

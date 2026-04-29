@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#C4B5FD"/>
+      <stop offset="45%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#0B0D24"/>
+    </radialGradient>
+    <radialGradient id="aurora" cx="70%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="310" cy="200" r="150" fill="url(#aurora)"/>
+  <text
+    x="256" y="328"
+    text-anchor="middle"
+    font-family="'JetBrains Mono', ui-monospace, monospace"
+    font-size="180"
+    font-weight="800"
+    letter-spacing="-8"
+    fill="#F5F6FF"
+  >OS</text>
+</svg>
