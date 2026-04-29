@@ -56,7 +56,7 @@ const Index = () => {
 
   return (
     <AppShell>
-      <h1 className="sr-only">דשבורד oslife</h1>
+      <h1 className="sr-only">דשבורד benweb</h1>
 
       <DailyBriefing userName="בן" />
 

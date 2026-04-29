@@ -82,10 +82,9 @@ const SECTIONS: Section[] = [
   {
     title: "תמיכה",
     items: [
-      { label: "האתר שלנו", icon: "🌐", href: "https://oslife.app", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
-      { label: "מדריך", icon: "📘", href: "https://github.com/bben15600-sys/aurora-dashboard#readme", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
-      { label: "דיווח על תקלה", icon: "🔧", href: "https://github.com/bben15600-sys/aurora-dashboard/issues/new", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
-      { label: "הצעות לשיפור", icon: "💫", href: "https://github.com/bben15600-sys/aurora-dashboard/issues/new", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
+      { label: "מדריך", icon: "📘", href: "https://github.com/bben15600-sys/Web-tast#readme", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
+      { label: "דיווח על תקלה", icon: "🔧", href: "https://github.com/bben15600-sys/Web-tast/issues/new", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
+      { label: "הצעות לשיפור", icon: "💫", href: "https://github.com/bben15600-sys/Web-tast/issues/new", color: "#60A5FA", bg: "rgba(96,165,250,0.10)", border: "rgba(96,165,250,0.24)" },
     ],
   },
 ];
