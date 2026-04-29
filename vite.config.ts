@@ -20,9 +20,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "pwa-icon.svg"],
       manifest: {
-        name: "oslife — Life OS",
-        short_name: "oslife",
-        description: "Personal life dashboard: schedule, budget, investments, chat.",
+        name: "benweb — דשבורד אישי",
+        short_name: "benweb",
+        description: "benweb — דשבורד אישי בעברית: לוז, תקציב, השקעות, מטבח, בריאות, AI.",
         theme_color: "#0B0D24",
         background_color: "#0B0D24",
         display: "standalone",
