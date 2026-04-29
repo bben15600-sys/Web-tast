@@ -21,7 +21,7 @@ const TopBar = ({ style }: { style?: React.CSSProperties }) => {
           className="font-semibold"
           style={{ fontSize: 14, color: "#F5F6FF", letterSpacing: "-0.01em" }}
         >
-          Life OS
+          benweb
         </span>
         <span className="holo-logo" aria-hidden />
       </div>

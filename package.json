@@ -1,5 +1,6 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "benweb",
+  "description": "benweb — דשבורד אישי בעברית (Life OS)",
   "private": true,
   "version": "0.0.0",
   "type": "module",
