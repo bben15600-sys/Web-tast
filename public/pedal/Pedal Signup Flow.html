@@ -2,53 +2,156 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pedal — iOS Signup Flow</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A66FF">
+<title>Pedal — Sign up</title>
 <style>
-  html, body { margin: 0; padding: 0; background: #f0eee9; overflow: hidden; }
-  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #0A66FF; min-height: 100%; overflow-x: hidden; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  input, button { font-family: inherit; }
+  @keyframes pedal-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.55; }
+    50%      { transform: scale(1.06); opacity: 0.95; }
+  }
+  @keyframes pedal-ping {
+    0%   { transform: scale(0.6); opacity: 0.7; }
+    80%  { transform: scale(1.6); opacity: 0; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  @keyframes pedal-slide-in {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .pedal-screen { animation: pedal-slide-in .28s cubic-bezier(.2,.7,.3,1); }
+  .pedal-frame::-webkit-scrollbar { display: none; }
+  /* Fullscreen on mobile, device frame on desktop */
+  @media (min-width: 700px) {
+    body { background: linear-gradient(180deg, #f0eee9 0%, #e6e2da 100%); }
+  }
 </style>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="root"></div>
 
-<script type="text/babel" src="ios-frame.jsx"></script>
-<script type="text/babel" src="design-canvas.jsx"></script>
 <script type="text/babel" src="screens.jsx"></script>
 
 <script type="text/babel">
-const W = 402, H = 874;
+const { useState, useEffect } = React;
 
-// Wrap a screen in the iOS device frame
-function Frame({ children }) {
+function ResponsiveFrame({ children }) {
+  const [isDesktop, setDesktop] = useState(() => window.innerWidth >= 700);
+  useEffect(() => {
+    const onR = () => setDesktop(window.innerWidth >= 700);
+    window.addEventListener('resize', onR);
+    return () => window.removeEventListener('resize', onR);
+  }, []);
+
+  // Mobile: fill viewport with the screen content (no fake device chrome).
+  if (!isDesktop) {
+    return (
+      <div className="pedal-frame" style={{
+        position: 'fixed', inset: 0, background: '#fff',
+        overflow: 'auto', WebkitOverflowScrolling: 'touch',
+        fontFamily: window.PEDAL_FONT,
+      }}>{children}</div>
+    );
+  }
+
+  // Desktop: 402×874 device frame, centered, with iOS chrome.
   return (
-    <IOSDevice width={W} height={H}>
-      {children}
-    </IOSDevice>
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '40px 20px', fontFamily: window.PEDAL_FONT,
+    }}>
+      <div style={{
+        width: 402, height: 874, borderRadius: 48, overflow: 'hidden',
+        position: 'relative', background: '#fff',
+        boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      }}>
+        {/* dynamic island */}
+        <div style={{
+          position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
+          width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
+        }} />
+        {/* status bar */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+          padding: '21px 32px 0', display: 'flex', justifyContent: 'space-between',
+          alignItems: 'center', fontSize: 17, fontWeight: 590, color: '#000',
+          pointerEvents: 'none',
+        }}>
+          <span>9:41</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <svg width="19" height="12" viewBox="0 0 19 12">
+              <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#000"/>
+              <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#000"/>
+              <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#000"/>
+              <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#000"/>
+            </svg>
+            <svg width="27" height="13" viewBox="0 0 27 13">
+              <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#000" strokeOpacity="0.35" fill="none"/>
+              <rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/>
+            </svg>
+          </span>
+        </div>
+        <div className="pedal-frame" style={{ height: '100%', overflow: 'auto' }}>{children}</div>
+        {/* home indicator */}
+        <div style={{
+          position: 'absolute', bottom: 8, left: 0, right: 0, height: 5,
+          display: 'flex', justifyContent: 'center', pointerEvents: 'none', zIndex: 60,
+        }}>
+          <div style={{ width: 139, height: 5, borderRadius: 100, background: 'rgba(0,0,0,0.25)' }} />
+        </div>
+      </div>
+    </div>
   );
 }
 
 function App() {
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState({
+    phone: '',
+    code: ['', '', '', '', '', ''],
+    firstName: '', lastName: '', email: '', dob: '',
+    optIn: true,
+    plan: 'monthly',
+  });
+
+  const next = () => setStep((s) => Math.min(6, s + 1));
+  const back = () => setStep((s) => Math.max(0, s - 1));
+  const restart = () => {
+    setStep(0);
+    setData({
+      phone: '', code: ['', '', '', '', '', ''],
+      firstName: '', lastName: '', email: '', dob: '',
+      optIn: true, plan: 'monthly',
+    });
+  };
+
+  const setField = (k) => (v) => setData((d) => ({ ...d, [k]: v }));
+
+  let screen;
+  switch (step) {
+    case 0: screen = <S1_Welcome onNext={next} onSignIn={() => alert('Sign-in is a separate flow.')}/>; break;
+    case 1: screen = <S2_Phone phone={data.phone} setPhone={setField('phone')} onBack={back} onNext={next}/>; break;
+    case 2: screen = <S3_Verify code={data.code} setCode={setField('code')} phone={data.phone} onBack={back} onChangeNumber={back} onNext={next}/>; break;
+    case 3: screen = <S4_Profile data={data} setData={setData} onBack={back} onNext={next}/>; break;
+    case 4: screen = <S5_Plan plan={data.plan} setPlan={setField('plan')} onBack={back} onNext={next}/>; break;
+    case 5: screen = <S6_Location onBack={back} onNext={next}/>; break;
+    case 6: screen = <S7_Done firstName={data.firstName} onFindBike={restart}/>; break;
+    default: screen = null;
+  }
+
   return (
-    <DesignCanvas>
-      <DCSection
-        id="signup"
-        title="Pedal — iOS Signup"
-        subtitle="A 7-step signup flow for a fictional bikesharing app. Blue + white, iOS 26."
-      >
-        <DCArtboard id="welcome"  label="01 · Welcome"        width={W} height={H}><Frame><S1_Welcome/></Frame></DCArtboard>
-        <DCArtboard id="phone"    label="02 · Phone number"   width={W} height={H}><Frame><S2_Phone/></Frame></DCArtboard>
-        <DCArtboard id="verify"   label="03 · Verify code"    width={W} height={H}><Frame><S3_Verify/></Frame></DCArtboard>
-        <DCArtboard id="profile"  label="04 · Profile"        width={W} height={H}><Frame><S4_Profile/></Frame></DCArtboard>
-        <DCArtboard id="plan"     label="05 · Choose plan"    width={W} height={H}><Frame><S5_Plan/></Frame></DCArtboard>
-        <DCArtboard id="location" label="06 · Location"       width={W} height={H}><Frame><S6_Location/></Frame></DCArtboard>
-        <DCArtboard id="done"     label="07 · Welcome aboard" width={W} height={H}><Frame><S7_Done/></Frame></DCArtboard>
-      </DCSection>
-    </DesignCanvas>
+    <ResponsiveFrame>
+      <div key={step} className="pedal-screen" style={{ height: '100%' }}>
+        {screen}
+      </div>
+    </ResponsiveFrame>
   );
 }
 
