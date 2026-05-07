@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ShopLayout } from "@/components/shop/ShopLayout";
 import { ProductGrid } from "@/components/shop/ProductGrid";
@@ -11,22 +11,36 @@ const SORTS = [
   { key: "high",     label: "מחיר: גבוה לנמוך" },
 ] as const;
 
+/** URL slug → product.category Hebrew label. */
+const CAT_FROM_SLUG: Record<string, string> = {
+  classic:   "קלאסי",
+  metal:     "מתכת",
+  led:       "LED מואר",
+  pocket:    "פוקט מיני",
+  premium:   "פרימיום",
+};
+
 const CATEGORIES = [
-  { key: "all",      label: "הכל" },
-  { key: "טייצים",     label: "טייצים" },
-  { key: "חזיות ספורט", label: "חזיות" },
-  { key: "חולצות",    label: "חולצות" },
-  { key: "מכנסיים",    label: "מכנסיים" },
-  { key: "מכנסיים קצרים", label: "קצרים" },
-  { key: "פליז",      label: "פליז" },
-  { key: "גופיות",    label: "גופיות" },
+  { key: "all",        label: "הכל" },
+  { key: "קלאסי",       label: "קלאסי" },
+  { key: "מתכת",        label: "מתכת" },
+  { key: "LED מואר",   label: "LED" },
+  { key: "פוקט מיני",   label: "פוקט מיני" },
+  { key: "פרימיום",     label: "פרימיום" },
 ];
 
 export default function ShopProducts() {
   const [params, setParams] = useSearchParams();
   const tag = params.get("tag");
+  const catSlug = params.get("cat");
   const [cat, setCat] = useState<string>("all");
   const [sort, setSort] = useState<typeof SORTS[number]["key"]>("featured");
+
+  // Sync category filter with URL param when it changes (e.g. from header link).
+  useEffect(() => {
+    if (catSlug && CAT_FROM_SLUG[catSlug]) setCat(CAT_FROM_SLUG[catSlug]);
+    else if (!catSlug) setCat("all");
+  }, [catSlug]);
 
   const items = useMemo(() => {
     let list = [...products];
@@ -40,7 +54,8 @@ export default function ShopProducts() {
 
   const heading = tag === "new"   ? "חדש בקולקציה"
                 : tag === "sale"  ? "מבצעים"
-                : "כל המוצרים";
+                : cat !== "all"   ? cat
+                : "כל הספינרים";
 
   return (
     <ShopLayout>
@@ -85,12 +100,14 @@ export default function ShopProducts() {
             </select>
           </label>
 
-          {tag && (
+          {(tag || catSlug || cat !== "all") && (
             <button
               className="shop-pill"
               onClick={() => {
                 params.delete("tag");
+                params.delete("cat");
                 setParams(params, { replace: true });
+                setCat("all");
               }}
               aria-label="נקה פילטר"
             >

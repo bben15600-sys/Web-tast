@@ -1,4 +1,4 @@
-// Mock dataset for the Gymshark-inspired storefront.
+// Mock dataset for the Gymshark-inspired storefront — pivoted to spinners.
 // Replace with a real CMS / Shopify / Stripe source later — the page
 // components only depend on these types, not on the loader.
 
@@ -44,270 +44,387 @@ export type Activity = {
   image: string;
 };
 
-const u = (id: string, w = 900) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
+/* ─── SVG illustration factory ─────────────────────────────────────
+   Inline data URIs so cards/PDP render without any network photo
+   dependency. Each spinner is built from three lobes around a hub. */
+
+const shade = (hex: string, pct: number): string => {
+  const n = parseInt(hex.slice(1), 16);
+  const adj = Math.round((255 * pct) / 100);
+  const clamp = (v: number) => Math.max(0, Math.min(255, v));
+  const r = clamp((n >> 16) + adj);
+  const g = clamp(((n >> 8) & 0xff) + adj);
+  const b = clamp((n & 0xff) + adj);
+  return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+};
+
+const spinnerSvg = (
+  lobe: string,
+  hub: string,
+  bg: string,
+  rot = 0,
+  lobes = 3,
+): string => {
+  const step = 360 / lobes;
+  const lobeShapes = Array.from({ length: lobes })
+    .map((_, i) => {
+      const a = i * step;
+      return `
+        <g transform="rotate(${a})">
+          <path d="M -55 0 L -45 -180 A 95 95 0 0 1 45 -180 L 55 0 Z" />
+          <circle cx="0" cy="-180" r="92" />
+          <circle cx="0" cy="-180" r="32" fill="${bg}" />
+        </g>`;
+    })
+    .join("");
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <radialGradient id="b" cx="50%" cy="35%" r="75%">
+        <stop offset="0%" stop-color="${shade(bg, 8)}"/>
+        <stop offset="100%" stop-color="${shade(bg, -18)}"/>
+      </radialGradient>
+      <radialGradient id="h" cx="40%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="${shade(hub, 18)}"/>
+        <stop offset="100%" stop-color="${shade(hub, -12)}"/>
+      </radialGradient>
+    </defs>
+    <rect width="800" height="1000" fill="url(#b)"/>
+    <g transform="translate(400 500) rotate(${rot})">
+      <g fill="${lobe}" stroke="${shade(lobe, -25)}" stroke-width="2">
+        ${lobeShapes}
+      </g>
+      <circle r="80" fill="url(#h)" stroke="${shade(hub, -25)}" stroke-width="2"/>
+      <circle r="32" fill="${bg}"/>
+      <circle r="14" fill="${shade(bg, -20)}"/>
+    </g>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+const heroSpinnerSvg = (
+  lobe: string,
+  hub: string,
+  bg: string,
+  bg2: string,
+): string => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${bg}"/>
+        <stop offset="100%" stop-color="${bg2}"/>
+      </linearGradient>
+      <radialGradient id="hh" cx="40%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="${shade(hub, 25)}"/>
+        <stop offset="100%" stop-color="${shade(hub, -10)}"/>
+      </radialGradient>
+      <filter id="sh" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="18" />
+      </filter>
+    </defs>
+    <rect width="1600" height="900" fill="url(#hg)"/>
+    <g opacity="0.18" fill="${lobe}">
+      <circle cx="180" cy="160" r="220"/>
+      <circle cx="1420" cy="780" r="280"/>
+    </g>
+    <g transform="translate(1100 500)">
+      <ellipse cx="0" cy="240" rx="200" ry="14" fill="#000" opacity="0.25" filter="url(#sh)"/>
+      <g transform="rotate(20)">
+        <g fill="${lobe}" stroke="${shade(lobe, -22)}" stroke-width="3">
+          ${[0, 120, 240].map((a) => `
+            <g transform="rotate(${a})">
+              <path d="M -65 0 L -52 -200 A 105 105 0 0 1 52 -200 L 65 0 Z"/>
+              <circle cx="0" cy="-200" r="105"/>
+              <circle cx="0" cy="-200" r="36" fill="${bg}"/>
+            </g>`).join("")}
+        </g>
+        <circle r="92" fill="url(#hh)" stroke="${shade(hub, -22)}" stroke-width="3"/>
+        <circle r="36" fill="${bg}"/>
+        <circle r="14" fill="${shade(bg, -20)}"/>
+      </g>
+    </g>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+const tileSpinner = (lobe: string, hub: string, bg: string): string => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1066" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="t" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${shade(bg, 10)}"/>
+        <stop offset="100%" stop-color="${shade(bg, -15)}"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="1066" fill="url(#t)"/>
+    <g transform="translate(400 533) rotate(15)">
+      <g fill="${lobe}" stroke="${shade(lobe, -22)}" stroke-width="2">
+        ${[0, 120, 240].map((a) => `
+          <g transform="rotate(${a})">
+            <path d="M -55 0 L -45 -180 A 95 95 0 0 1 45 -180 L 55 0 Z"/>
+            <circle cx="0" cy="-180" r="92"/>
+            <circle cx="0" cy="-180" r="32" fill="${bg}"/>
+          </g>`).join("")}
+      </g>
+      <circle r="78" fill="${hub}" stroke="${shade(hub, -22)}" stroke-width="2"/>
+      <circle r="30" fill="${bg}"/>
+    </g>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+/* ─── Content ─────────────────────────────────────────────────── */
 
 export const heroSlides = [
   {
-    eyebrow: "קולקציית קיץ 2026",
-    title: "תזרום. תרים. תנצח.",
-    sub: "סדרת אימון חדשה מבד טכני שנע איתך — לא נגדך. משלוח חינם בהזמנות מעל ₪249.",
-    cta: { label: "קנה לנשים", href: "/shop/products?gender=women" },
-    ctaSecondary: { label: "קנה לגברים", href: "/shop/products?gender=men" },
-    image: u("1517836357463-d25dfeac3438", 2000),
+    eyebrow: "סדרת SPIN PRO 2026",
+    title: "תסתובב. תרגע. תתרכז.",
+    sub: "ספינרים בעיצוב פרימיום עם מיסבים קרמיים — סיבוב חלק עד 4 דקות, שקט מוחלט, גימור שלא מתנקש בכיס.",
+    cta: { label: "קנה לבית", href: "/shop/products?gender=women" },
+    ctaSecondary: { label: "קנה למשרד", href: "/shop/products?gender=men" },
+    image: heroSpinnerSvg("#F5C24A", "#1A1A1A", "#0F1115", "#26203A"),
   },
   {
-    eyebrow: "טכנולוגיית FORM",
-    title: "בד שמרגיש כמו עור שני.",
-    sub: "ייחודי, נושם, וגמיש ב-4 כיוונים. מותאם לאימון אינטנסיבי, לסטודיו וליום-יום.",
-    cta: { label: "גלה את הקולקציה", href: "/shop/products?collection=form" },
-    image: u("1599058917212-d750089bc07e", 2000),
+    eyebrow: "טכנולוגיית CERAMIC CORE",
+    title: "השקט שעוזר לך לחשוב.",
+    sub: "מיסב קרמי ZrO₂ שמייצר פחות חיכוך ואפס רעש. מתאים לשעות ריכוז ארוכות במשרד או בלימודים.",
+    cta: { label: "גלה את הסדרה", href: "/shop/products?collection=pro" },
+    image: heroSpinnerSvg("#7AC8E8", "#0E2A3A", "#0A1822", "#0F3247"),
   },
 ] as const;
 
 export const announcements = [
-  "משלוח חינם מעל ₪249  ·  החזרות חינם",
+  "משלוח חינם בהזמנות מעל ₪149  ·  החזרה חינם תוך 30 יום",
+  "אחריות סיבוב ל-90 יום על כל ספינר",
+  "חדש: סדרת SPIN STEEL מפלדת אל-חלד",
   "סטודנטים — 12% הנחה עם אימות",
-  "השקה: קולקציית FORM החדשה",
-  "מועדון לקוחות — נקודות על כל קנייה",
 ];
 
 export const categories: Category[] = [
-  { slug: "running",  label: "ריצה",   image: u("1571019613454-1cb2f99b2d8b", 800) },
-  { slug: "lifting",  label: "כוח",    image: u("1581009146145-b5ef050c2e1e", 800) },
-  { slug: "hiit",     label: "HIIT",   image: u("1518611012118-696072aa579a", 800) },
-  { slug: "pilates",  label: "פילאטיס", image: u("1518310383802-640c2de6a6c1", 800) },
+  { slug: "classic", label: "קלאסי",     image: tileSpinner("#1A1A1A", "#7C7C7C", "#EFEAE2") },
+  { slug: "led",     label: "LED מואר",  image: tileSpinner("#A78BFA", "#FFFFFF", "#0E0B1F") },
+  { slug: "metal",   label: "מתכת",      image: tileSpinner("#B5A06B", "#5C4A22", "#1A1A1A") },
+  { slug: "pocket",  label: "פוקט מיני",  image: tileSpinner("#E25D3A", "#1A1A1A", "#F5EFE6") },
 ];
 
 export const activities: Activity[] = [
   {
-    slug: "studio",
-    label: "אימוני סטודיו",
-    blurb: "פילאטיס, יוגה, ברה. בד רך, גזרה צמודה, אפס הסחות.",
-    image: u("1518310383802-640c2de6a6c1", 1200),
+    slug: "office",
+    label: "במשרד",
+    blurb: "ריכוז עמוק בשיחת זום ארוכה, פחות לחץ בידיים, יותר רעיונות בראש.",
+    image: tileSpinner("#3D7AB2", "#0F1B2C", "#E7E2D7"),
   },
   {
-    slug: "outdoor",
-    label: "ריצה בחוץ",
-    blurb: "אוורור מקסימלי, רפלקטיבי, כיסים שלא קופצים.",
-    image: u("1517836357463-d25dfeac3438", 1200),
+    slug: "home",
+    label: "בבית",
+    blurb: "פינוק קטן ליום אחרי יום ארוך — שקט שלא מפריע לאף אחד אחר.",
+    image: tileSpinner("#C73E5A", "#1A1A1A", "#F5EFE6"),
   },
+];
+
+const variants = (lobe: string, hub: string, bg: string): string[] => [
+  spinnerSvg(lobe, hub, bg, 0),
+  spinnerSvg(lobe, hub, bg, 60),
+  spinnerSvg(lobe, hub, bg, 30),
+  spinnerSvg(lobe, hub, bg, 90),
 ];
 
 const PRODUCTS: Product[] = [
   {
-    slug: "form-seamless-leggings",
-    name: "טייץ FORM Seamless ארוך",
-    shortName: "טייץ FORM Seamless",
-    category: "טייצים",
-    collection: "FORM",
-    tag: "new",
-    price: 269,
-    description:
-      "הטייץ הכי נמכר שלנו, עכשיו בבד Seamless חלק. תפרים מינימליים, מותן גבוה שלא זז, וחומר שמתאים את עצמו לתנועה — מסקוואט עמוק ועד ריצה ארוכה.",
-    features: [
-      "מותן גבוה (28 ס\"מ) שלא זז במהלך אימון",
-      "בד 4-Way Stretch למקסימום טווח תנועה",
-      "תפרים שטוחים שמונעים שפשוף",
-      "כיס סמוי במותן",
-    ],
-    fabric: "73% פוליאמיד · 27% אלסטן",
-    fit: "גזרה צמודה (Compressive Fit)",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    unavailableSizes: ["XS"],
-    colors: [
-      { name: "שחור פחם", hex: "#111111" },
-      { name: "ירוק זית",  hex: "#54614A" },
-      { name: "ורוד אבק", hex: "#D5A6A0" },
-      { name: "תכלת ערפל", hex: "#A6B8C7" },
-    ],
-    images: [
-      u("1594381898411-846e7d193883", 1200),
-      u("1518310383802-640c2de6a6c1", 1200),
-      u("1571019613454-1cb2f99b2d8b", 1200),
-      u("1517836357463-d25dfeac3438", 1200),
-    ],
-  },
-  {
-    slug: "vital-sports-bra",
-    name: "חזיית ספורט Vital",
-    shortName: "חזיית Vital",
-    category: "חזיות ספורט",
-    collection: "Vital",
+    slug: "spin-one-classic",
+    name: "SPIN ONE קלאסי שחור",
+    shortName: "SPIN ONE קלאסי",
+    category: "קלאסי",
+    collection: "ONE",
     tag: "bestseller",
-    price: 189,
+    price: 49,
     description:
-      "תמיכה בינונית, גזרה Y בגב פתוח, ובד שאוסף לחות. אהובה גם לאימון בעצימות בינונית וגם למעבר ליום.",
+      "הספינר הראשון של כל אחד — שלושה לוב'ים בפלסטיק ABS איכותי, מיסב פלדה, סיבוב חלק של עד 90 שניות. גודל מושלם לכף יד מבוגרת או יד גדולה של ילד.",
     features: [
-      "תמיכה בינונית — מתאים ליוגה, פילאטיס וריצה קלה",
-      "פדים מובנים שניתנים להוצאה",
-      "גזרת Racerback שמשחררת תנועה בכתפיים",
+      "מיסב פלדה ABEC-7 מאוורר",
+      "פלסטיק ABS עמיד שלא נשרט בקלות",
+      "משקל מאוזן ידנית — אפס רעידות",
+      "מגיע בקופסה מתנה",
     ],
-    fabric: "85% פוליאסטר · 15% אלסטן",
-    fit: "Fitted",
-    sizes: ["XS", "S", "M", "L", "XL"],
+    fabric: "פלסטיק ABS מקצועי",
+    fit: "סטנדרטי — קוטר 7 ס\"מ",
+    sizes: ["מיני 5cm", "סטנדרט 7cm", "מקס 9cm"],
+    unavailableSizes: ["מקס 9cm"],
     colors: [
-      { name: "שחור",     hex: "#111111" },
-      { name: "לבן רך",   hex: "#F2EFE9" },
-      { name: "סגול לילך", hex: "#9B8FB6" },
+      { name: "שחור פחם",  hex: "#1A1A1A" },
+      { name: "לבן עז",   hex: "#F2EFE9" },
+      { name: "אדום קלאסי", hex: "#A0322B" },
+      { name: "כחול לילה",  hex: "#1E2A4A" },
     ],
-    images: [
-      u("1594381898411-846e7d193883", 1200),
-      u("1518611012118-696072aa579a", 1200),
-      u("1581009146145-b5ef050c2e1e", 1200),
-    ],
+    images: variants("#1A1A1A", "#7C7C7C", "#EFEAE2"),
   },
   {
-    slug: "crest-oversized-tee",
-    name: "טי-שירט Crest אוברסייז",
-    shortName: "Crest אוברסייז",
-    category: "חולצות",
-    collection: "Crest",
-    tag: null,
-    price: 129,
-    oldPrice: 159,
-    description:
-      "טי-שירט גזרה רחבה מבד כותנה כבד. מתאים גם לאימון סטודיו וגם לסגנון יומיומי. רקמה דיסקרטית של הלוגו על השרוול.",
-    features: ["100% כותנה ארוגה כבדה", "צוואר עגול מחוזק", "גזרה Drop-shoulder"],
-    fabric: "100% כותנה (240gsm)",
-    fit: "Oversized",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    colors: [
-      { name: "שחור",      hex: "#111111" },
-      { name: "אבן",       hex: "#D8CFB6" },
-      { name: "אפור גרפיט", hex: "#4D4D4F" },
-    ],
-    images: [
-      u("1521572163474-6864f9cf17ab", 1200),
-      u("1503342217505-b0a15ec3261c", 1200),
-      u("1583743814966-8936f5b7be1a", 1200),
-    ],
-  },
-  {
-    slug: "apex-shorts",
-    name: "מכנסי Apex 5\"",
-    shortName: "מכנסי Apex",
-    category: "מכנסיים קצרים",
-    collection: "Apex",
+    slug: "spin-glow-led",
+    name: "SPIN GLOW — RGB LED",
+    shortName: "SPIN GLOW",
+    category: "LED מואר",
+    collection: "GLOW",
     tag: "new",
-    price: 159,
-    description:
-      "מכנסיים קצרים בבד טכני אולטרה-קל לאימון אינטנסיבי. אוורור רשת בפנים, מותן גמיש ושני כיסים נסתרים.",
-    features: [
-      "אורך 5'' (12.5 ס\"מ)",
-      "ביטנת רשת אוורור פנימית",
-      "כיס סמוי במותן + כיס לסמארטפון",
-      "רצועות רפלקטיביות לריצת לילה",
-    ],
-    fabric: "92% פוליאסטר · 8% אלסטן",
-    fit: "Athletic",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: [
-      { name: "שחור",      hex: "#111111" },
-      { name: "צבא",       hex: "#3F4A2A" },
-      { name: "כחול לילה", hex: "#1E2A4A" },
-    ],
-    images: [
-      u("1517836357463-d25dfeac3438", 1200),
-      u("1571019613454-1cb2f99b2d8b", 1200),
-    ],
-  },
-  {
-    slug: "studio-jogger",
-    name: "ג׳וגר Studio",
-    shortName: "ג׳וגר Studio",
-    category: "מכנסיים",
-    collection: "Studio",
-    tag: "bestseller",
-    price: 219,
-    description:
-      "ג׳וגר רך לחימום, להתאוששות וליום אחרי. בד ממוחזר עם מגע סופט-פליז וגומיות בקרסול.",
-    features: ["בד ממוחזר 60%", "ביטנת פליז קלה", "כיסים עם רוכסן"],
-    fabric: "60% פוליאסטר ממוחזר · 40% כותנה",
-    fit: "Tapered",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: [
-      { name: "אפור",      hex: "#9A9A99" },
-      { name: "שחור",      hex: "#111111" },
-      { name: "חום קקאו",  hex: "#6E4E3A" },
-    ],
-    images: [
-      u("1594381898411-846e7d193883", 1200),
-      u("1521572163474-6864f9cf17ab", 1200),
-    ],
-  },
-  {
-    slug: "power-tank",
-    name: "גופיית Power Stringer",
-    shortName: "גופיית Power",
-    category: "גופיות",
-    collection: "Power",
-    tag: null,
     price: 99,
     description:
-      "גופייה קלאסית להרמת משקולות. גזרת Racer-cut שמשחררת את הכתפיים, בד עמיד וגזרה ארוכה.",
-    features: ["גזרת Racer-cut פתוחה", "בד 100% כותנה אוורירי"],
-    fabric: "100% כותנה",
-    fit: "Athletic",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+      "ספינר עם 9 נוריות RGB לכל לוב, שמתחלפות בעוצמת הסיבוב. סיבוב מהיר → קשת מלאה. כולל מטען USB-C ובטרייה ל-12 שעות אור רציף.",
+    features: [
+      "27 נוריות RGB (9 לכל לוב)",
+      "סוללה נטענת USB-C, 12 שעות שימוש",
+      "5 דפוסי תאורה לבחירה",
+      "מתג שתיקה לכיבוי האור",
+    ],
+    fabric: "פוליקרבונט שקוף + LED",
+    fit: "סטנדרטי — קוטר 7.5 ס\"מ",
+    sizes: ["סטנדרט 7.5cm"],
     colors: [
-      { name: "שחור",  hex: "#111111" },
-      { name: "לבן",   hex: "#F2EFE9" },
-      { name: "אדום קלאסי", hex: "#A0322B" },
+      { name: "שחור עם RGB",  hex: "#0E0B1F" },
+      { name: "שקוף עם RGB",  hex: "#E5E0F5" },
+      { name: "ורוד עם RGB",  hex: "#D5A6CC" },
     ],
-    images: [
-      u("1581009146145-b5ef050c2e1e", 1200),
-      u("1583500178690-f8d3e5b51c40", 1200),
-    ],
+    images: variants("#A78BFA", "#FFFFFF", "#0E0B1F"),
   },
   {
-    slug: "everyday-hoodie",
-    name: "האודי Everyday",
-    shortName: "האודי Everyday",
-    category: "פליז",
-    collection: "Everyday",
-    tag: "sale",
-    price: 199,
-    oldPrice: 249,
+    slug: "spin-steel-pro",
+    name: "SPIN STEEL פלדת אל-חלד",
+    shortName: "SPIN STEEL",
+    category: "מתכת",
+    collection: "STEEL",
+    tag: "new",
+    price: 189,
     description:
-      "האודי עבה לחורף ולחימום. ביטנת פליז כבדה, כובע מחוזק, וחיתוך עם כיס קנגורו.",
-    features: ["בד 380gsm כבד", "כובע דו-שכבתי", "כיס קנגורו רחב"],
-    fabric: "80% כותנה · 20% פוליאסטר",
-    fit: "Relaxed",
-    sizes: ["S", "M", "L", "XL"],
+      "פלדת אל-חלד 304 בעיבוד CNC. מסה גבוהה שמייצרת תאוצה אדירה — סיבוב חלק שלוש דקות וחצי. מיסב קרמי היברידי ZrO₂ לשקט מוחלט.",
+    features: [
+      "פלדת אל-חלד 304 בעיבוד CNC",
+      "מיסב קרמי היברידי ZrO₂",
+      "משקל 165 גרם — תחושה רצינית ביד",
+      "ערבות סיבוב ל-90 יום",
+    ],
+    fabric: "פלדת אל-חלד 304",
+    fit: "סטנדרטי — קוטר 7 ס\"מ, משקל 165 ג'",
+    sizes: ["סטנדרט 7cm"],
+    colors: [
+      { name: "פלדה מבריקה", hex: "#A8A8AC" },
+      { name: "פלדה שחורה",  hex: "#2A2A2C" },
+      { name: "פלדה כחולה",  hex: "#3D5A78" },
+    ],
+    images: variants("#A8A8AC", "#3F3F42", "#16161A"),
+  },
+  {
+    slug: "spin-gold-brass",
+    name: "SPIN GOLD — פליז מצופה",
+    shortName: "SPIN GOLD",
+    category: "מתכת",
+    collection: "GOLD",
+    tag: null,
+    price: 249,
+    description:
+      "פליז מלא מצופה זהב 24K אמיתי. בעיצוב היד אצלך הוא מרגיש כמו מכשיר תכשיטים — כבד, חלק, יוקרתי. מתאים גם כמתנה.",
+    features: [
+      "פליז מלא, ציפוי זהב 24K",
+      "מיסב קרמי שלם",
+      "כל ספינר ממוספר ידנית",
+      "אריזת עץ מלא + תעודת אחריות",
+    ],
+    fabric: "פליז + ציפוי זהב 24K",
+    fit: "פרימיום — קוטר 7 ס\"מ, משקל 195 ג'",
+    sizes: ["סטנדרט 7cm"],
+    colors: [
+      { name: "זהב מבריק",  hex: "#D4AF37" },
+      { name: "זהב מט",     hex: "#9C7C25" },
+      { name: "ברונזה",     hex: "#A0703A" },
+    ],
+    images: variants("#D4AF37", "#5C4A22", "#1A1A1A"),
+  },
+  {
+    slug: "spin-pocket-mini",
+    name: "SPIN POCKET — מיני",
+    shortName: "SPIN POCKET",
+    category: "פוקט מיני",
+    collection: "POCKET",
+    tag: "sale",
+    price: 39,
+    oldPrice: 59,
+    description:
+      "ספינר זעיר שנכנס לכיס המכנסיים בלי להרגיש. אידאלי לזמני המתנה, נסיעות ארוכות, או רגעי לחץ ברשות הרבים.",
+    features: ["קוטר 5 ס\"מ בלבד", "משקל 22 גרם", "ציפוי קטיפה למגע נעים"],
+    fabric: "אבץ מצופה קטיפה",
+    fit: "מיני — קוטר 5 ס\"מ",
+    sizes: ["מיני 5cm"],
+    colors: [
+      { name: "כתום קלאסי", hex: "#E25D3A" },
+      { name: "ירוק יער",   hex: "#2E4A36" },
+      { name: "ורוד אבק",   hex: "#D5A6A0" },
+      { name: "אבן",        hex: "#D8CFB6" },
+    ],
+    images: variants("#E25D3A", "#1A1A1A", "#F5EFE6"),
+  },
+  {
+    slug: "spin-pro-ceramic",
+    name: "SPIN PRO — מיסב קרמי",
+    shortName: "SPIN PRO",
+    category: "מתכת",
+    collection: "PRO",
+    tag: "bestseller",
+    price: 159,
+    description:
+      "המיסב הקרמי מייצר אפס חיכוך ואפס חום. תוצאה: סיבוב הכי שקט שתשמע, וזמני סיבוב של 4+ דקות מסיבוב יחיד.",
+    features: [
+      "מיסב קרמי ZrO₂ מלא",
+      "סיבוב 4+ דקות במבחני מעבדה",
+      "גוף אלומיניום קל אנודייז",
+      "אריזת מתנה כלולה",
+    ],
+    fabric: "אלומיניום אנודייז + קרמיקה",
+    fit: "סטנדרטי — קוטר 7 ס\"מ, משקל 78 ג'",
+    sizes: ["סטנדרט 7cm"],
     colors: [
       { name: "אפור גרפיט", hex: "#4D4D4F" },
-      { name: "שחור",      hex: "#111111" },
-      { name: "אבן",       hex: "#D8CFB6" },
+      { name: "כחול מטאלי", hex: "#2C5282" },
+      { name: "אדום מטאלי", hex: "#9B2C2C" },
     ],
-    images: [
-      u("1503342217505-b0a15ec3261c", 1200),
-      u("1521572163474-6864f9cf17ab", 1200),
-    ],
+    images: variants("#4D4D4F", "#9A9A99", "#16161A"),
   },
   {
-    slug: "elevate-leggings",
-    name: "טייץ Elevate High-Rise",
-    shortName: "טייץ Elevate",
-    category: "טייצים",
-    collection: "Elevate",
+    slug: "spin-tri-3-lobe",
+    name: "SPIN TRI — 3 לוב'ים",
+    shortName: "SPIN TRI",
+    category: "קלאסי",
+    collection: "TRI",
     tag: null,
-    price: 229,
+    price: 79,
     description:
-      "טייץ יומיומי גבוה במותן. בד נושם, מתאים גם לסטודיו וגם להליכה ארוכה.",
-    features: ["מותן גבוה 26 ס\"מ", "תפר אחורי מעצב", "כיסים בצד"],
-    fabric: "78% פוליאמיד · 22% אלסטן",
-    fit: "Compressive",
-    sizes: ["XS", "S", "M", "L", "XL"],
+      "הקלאסי שלא מתחרבן. שלושה לוב'ים סימטריים, מיסב פלדה כפול, גימור גומי שלא מחליק מהיד גם בקיץ.",
+    features: ["מיסב פלדה כפול", "גימור גומי אנטי-החלקה", "קל ועמיד"],
+    fabric: "ABS + ציפוי גומי",
+    fit: "סטנדרטי — קוטר 7 ס\"מ",
+    sizes: ["סטנדרט 7cm", "מקס 9cm"],
     colors: [
-      { name: "שחור",  hex: "#111111" },
-      { name: "מוקה",  hex: "#7A5848" },
-      { name: "ירוק יער", hex: "#2E4A36" },
+      { name: "שחור גומי",  hex: "#222222" },
+      { name: "ירוק נפט",   hex: "#1F4A3F" },
+      { name: "כחול לילה",  hex: "#1E2A4A" },
     ],
-    images: [
-      u("1518611012118-696072aa579a", 1200),
-      u("1571019613454-1cb2f99b2d8b", 1200),
+    images: variants("#222222", "#888888", "#E7E2D7"),
+  },
+  {
+    slug: "spin-penta-5-lobe",
+    name: "SPIN PENTA — 5 לוב'ים",
+    shortName: "SPIN PENTA",
+    category: "פרימיום",
+    collection: "PENTA",
+    tag: "new",
+    price: 99,
+    description:
+      "חמישה לוב'ים מסביב למיסב היברידי. דחיפה אחת, סיבוב הכי הרמוני שתחווה — תחושה של דיסק ולא של גלגל.",
+    features: ["5 לוב'ים סימטריים", "מיסב היברידי", "ציפוי מט נעים"],
+    fabric: "אלומיניום + ציפוי מט",
+    fit: "פרימיום — קוטר 7.5 ס\"מ",
+    sizes: ["סטנדרט 7.5cm"],
+    colors: [
+      { name: "כסף מט",     hex: "#B0B0B5" },
+      { name: "טייטניום",    hex: "#5A5A5F" },
+      { name: "רוז גולד",    hex: "#C8907A" },
     ],
+    images: variants("#B0B0B5", "#3A3A3F", "#0F0F12"),
   },
 ];
 

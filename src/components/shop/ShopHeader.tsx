@@ -3,11 +3,12 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
 const NAV = [
-  { label: "נשים",     to: "/shop/products?gender=women" },
-  { label: "גברים",    to: "/shop/products?gender=men" },
-  { label: "אקססוריז", to: "/shop/products?cat=accessories" },
-  { label: "חדש",      to: "/shop/products?tag=new" },
-  { label: "מבצעים",   to: "/shop/products?tag=sale" },
+  { label: "כל הספינרים", to: "/shop/products" },
+  { label: "מתכת",       to: "/shop/products?cat=metal" },
+  { label: "LED",        to: "/shop/products?cat=led" },
+  { label: "פוקט",       to: "/shop/products?cat=pocket" },
+  { label: "חדש",        to: "/shop/products?tag=new" },
+  { label: "מבצעים",     to: "/shop/products?tag=sale" },
 ];
 
 export function ShopHeader() {
@@ -23,7 +24,7 @@ export function ShopHeader() {
       </button>
 
       <Link to="/shop" className="shop-logo" aria-label="דף הבית">
-        FORM
+        SPIN
       </Link>
 
       <nav className="shop-nav" aria-label="ראשי">
@@ -50,7 +51,7 @@ export function ShopHeader() {
           className="fixed inset-0 z-[60] bg-white p-6 lg:hidden"
         >
           <div className="flex justify-between items-center mb-8">
-            <span className="shop-logo">FORM</span>
+            <span className="shop-logo">SPIN</span>
             <button onClick={() => setOpen(false)} aria-label="סגור" className="shop-icon-btn">
               ✕
             </button>

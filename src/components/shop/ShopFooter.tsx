@@ -3,9 +3,9 @@ export function ShopFooter() {
     <footer className="shop-footer">
       <div className="shop-footer-inner">
         <div>
-          <h4>הצטרף למועדון</h4>
+          <h4>הצטרף למועדון SPIN</h4>
           <p className="text-white/70 text-sm leading-6 max-w-[40ch]">
-            10% הנחה על ההזמנה הראשונה, גישה מוקדמת להשקות וטיפים שבועיים מהמאמנים שלנו.
+            10% הנחה על ההזמנה הראשונה, גישה מוקדמת להשקות חדשות, ועדכונים על דגמים מוגבלים.
           </p>
           <form
             className="shop-newsletter"
@@ -26,9 +26,10 @@ export function ShopFooter() {
         <div>
           <h4>קנייה</h4>
           <ul>
-            <li><a href="/shop/products?gender=women">נשים</a></li>
-            <li><a href="/shop/products?gender=men">גברים</a></li>
-            <li><a href="/shop/products?cat=accessories">אקססוריז</a></li>
+            <li><a href="/shop/products">כל הספינרים</a></li>
+            <li><a href="/shop/products?cat=metal">מתכת</a></li>
+            <li><a href="/shop/products?cat=led">LED</a></li>
+            <li><a href="/shop/products?cat=pocket">פוקט מיני</a></li>
             <li><a href="/shop/products?tag=new">חדש בקולקציה</a></li>
             <li><a href="/shop/products?tag=sale">מבצעים</a></li>
           </ul>
@@ -58,7 +59,7 @@ export function ShopFooter() {
       </div>
 
       <div className="shop-footer-bottom">
-        <span>© {new Date().getFullYear()} FORM Athletics. כל הזכויות שמורות.</span>
+        <span>© {new Date().getFullYear()} SPIN. כל הזכויות שמורות.</span>
         <div className="flex gap-4">
           <a href="#">תקנון</a>
           <a href="#">פרטיות</a>
