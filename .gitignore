@@ -25,3 +25,4 @@ dist-ssr
 
 # Claude Code runtime state (per-session counters, hook markers)
 .claude/auto-handoff/
+.vercel
