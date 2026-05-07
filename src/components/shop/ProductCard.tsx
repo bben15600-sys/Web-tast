@@ -10,6 +10,7 @@ const TAG_LABEL: Record<NonNullable<Product["tag"]>, string> = {
 
 export function ProductCard({ product }: { product: Product }) {
   const [front, hover] = product.images;
+  const firstColor = product.colors[0]?.name ?? "";
   return (
     <Link to={`/shop/products/${product.slug}`} className="shop-card" aria-label={product.name}>
       <div className="shop-card-media">
@@ -45,23 +46,15 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="shop-card-info">
         <span className="shop-card-name">{product.name}</span>
-        <span className="shop-card-meta">{product.colors.length} צבעים</span>
-        <span>
+        <span className="shop-card-fit">{product.fit.split(" — ")[0]}</span>
+        <span className="shop-card-color">{firstColor} · {product.colors.length} צבעים</span>
+        <span className="shop-card-price-row">
+          <span className="shop-card-price-label">מחיר רגיל:</span>
           <span className="shop-card-price currency">{formatPrice(product.price)}</span>
           {product.oldPrice && (
             <span className="shop-card-price-old currency">{formatPrice(product.oldPrice)}</span>
           )}
         </span>
-        <div className="shop-card-swatches" aria-hidden>
-          {product.colors.slice(0, 5).map((c) => (
-            <span
-              key={c.hex}
-              className="shop-swatch"
-              style={{ background: c.hex }}
-              title={c.name}
-            />
-          ))}
-        </div>
       </div>
     </Link>
   );

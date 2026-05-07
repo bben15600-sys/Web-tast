@@ -1546,21 +1546,42 @@
   .shop-card-quickadd:hover { background: #111111; color: #FFFFFF; }
 
   .shop-card-info {
-    padding-block: 12px 4px;
+    padding-block: 14px 4px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
   }
   .shop-card-name {
     font-size: 14px;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
     line-height: 1.3;
     color: var(--shop-ink);
   }
-  .shop-card-meta {
+  .shop-card-fit {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--shop-ink-soft);
+    margin-top: 1px;
+  }
+  .shop-card-color {
     font-size: 12px;
     color: var(--shop-ink-mute);
+    margin-top: 1px;
+  }
+  .shop-card-price-row {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+  .shop-card-price-label {
+    color: var(--shop-ink-mute);
+    font-size: 12px;
+    font-weight: 500;
   }
   .shop-card-price {
     font-size: 14px;
@@ -1571,7 +1592,11 @@
     color: var(--shop-ink-mute);
     text-decoration: line-through;
     font-weight: 500;
-    margin-inline-start: 6px;
+    font-size: 12px;
+  }
+  .shop-card-meta {
+    font-size: 12px;
+    color: var(--shop-ink-mute);
   }
   .shop-card-swatches {
     display: flex;
@@ -1583,6 +1608,58 @@
     height: 14px;
     border-radius: 999px;
     border: 1px solid var(--shop-line);
+  }
+
+  /* Horizontal product strip — Gymshark uses scroll-snap rather than wrapping */
+  .shop-strip-wrap {
+    position: relative;
+    margin-inline: calc(-1 * clamp(16px, 4vw, 40px));
+  }
+  .shop-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 75%;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px clamp(16px, 4vw, 40px);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-inline-start: clamp(16px, 4vw, 40px);
+  }
+  .shop-strip::-webkit-scrollbar { display: none; }
+  .shop-strip > * { scroll-snap-align: start; }
+  @media (min-width: 640px) {
+    .shop-strip { grid-auto-columns: 38%; gap: 16px; }
+  }
+  @media (min-width: 1024px) {
+    .shop-strip { grid-auto-columns: 24%; gap: 20px; }
+  }
+  @media (min-width: 1400px) {
+    .shop-strip { grid-auto-columns: 22%; }
+  }
+  .shop-strip-arrow {
+    position: absolute;
+    top: 38%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid var(--shop-line);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    transition: transform 160ms ease;
+  }
+  .shop-strip-arrow:hover { transform: translateY(-50%) scale(1.06); }
+  .shop-strip-arrow-prev { inset-inline-start: clamp(4px, 2vw, 16px); }
+  .shop-strip-arrow-next { inset-inline-end: clamp(4px, 2vw, 16px); }
+  @media (min-width: 1024px) {
+    .shop-strip-arrow { display: inline-flex; }
   }
 
   /* Category tiles (POPULAR RIGHT NOW) */

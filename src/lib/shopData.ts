@@ -44,132 +44,23 @@ export type Activity = {
   image: string;
 };
 
-/* ─── SVG illustration factory ─────────────────────────────────────
-   Inline data URIs so cards/PDP render without any network photo
-   dependency. Each spinner is built from three lobes around a hub. */
+/* ─── Real product photography (verified Unsplash URLs) ─────────── */
 
-const shade = (hex: string, pct: number): string => {
-  const n = parseInt(hex.slice(1), 16);
-  const adj = Math.round((255 * pct) / 100);
-  const clamp = (v: number) => Math.max(0, Math.min(255, v));
-  const r = clamp((n >> 16) + adj);
-  const g = clamp(((n >> 8) & 0xff) + adj);
-  const b = clamp((n & 0xff) + adj);
-  return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
-};
+const photo = (id: string, w = 900) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
-const spinnerSvg = (
-  lobe: string,
-  hub: string,
-  bg: string,
-  rot = 0,
-  lobes = 3,
-): string => {
-  const step = 360 / lobes;
-  const lobeShapes = Array.from({ length: lobes })
-    .map((_, i) => {
-      const a = i * step;
-      return `
-        <g transform="rotate(${a})">
-          <path d="M -55 0 L -45 -180 A 95 95 0 0 1 45 -180 L 55 0 Z" />
-          <circle cx="0" cy="-180" r="92" />
-          <circle cx="0" cy="-180" r="32" fill="${bg}" />
-        </g>`;
-    })
-    .join("");
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <radialGradient id="b" cx="50%" cy="35%" r="75%">
-        <stop offset="0%" stop-color="${shade(bg, 8)}"/>
-        <stop offset="100%" stop-color="${shade(bg, -18)}"/>
-      </radialGradient>
-      <radialGradient id="h" cx="40%" cy="35%" r="65%">
-        <stop offset="0%" stop-color="${shade(hub, 18)}"/>
-        <stop offset="100%" stop-color="${shade(hub, -12)}"/>
-      </radialGradient>
-    </defs>
-    <rect width="800" height="1000" fill="url(#b)"/>
-    <g transform="translate(400 500) rotate(${rot})">
-      <g fill="${lobe}" stroke="${shade(lobe, -25)}" stroke-width="2">
-        ${lobeShapes}
-      </g>
-      <circle r="80" fill="url(#h)" stroke="${shade(hub, -25)}" stroke-width="2"/>
-      <circle r="32" fill="${bg}"/>
-      <circle r="14" fill="${shade(bg, -20)}"/>
-    </g>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-};
-
-const heroSpinnerSvg = (
-  lobe: string,
-  hub: string,
-  bg: string,
-  bg2: string,
-): string => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="${bg}"/>
-        <stop offset="100%" stop-color="${bg2}"/>
-      </linearGradient>
-      <radialGradient id="hh" cx="40%" cy="35%" r="65%">
-        <stop offset="0%" stop-color="${shade(hub, 25)}"/>
-        <stop offset="100%" stop-color="${shade(hub, -10)}"/>
-      </radialGradient>
-      <filter id="sh" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="18" />
-      </filter>
-    </defs>
-    <rect width="1600" height="900" fill="url(#hg)"/>
-    <g opacity="0.18" fill="${lobe}">
-      <circle cx="180" cy="160" r="220"/>
-      <circle cx="1420" cy="780" r="280"/>
-    </g>
-    <g transform="translate(1100 500)">
-      <ellipse cx="0" cy="240" rx="200" ry="14" fill="#000" opacity="0.25" filter="url(#sh)"/>
-      <g transform="rotate(20)">
-        <g fill="${lobe}" stroke="${shade(lobe, -22)}" stroke-width="3">
-          ${[0, 120, 240].map((a) => `
-            <g transform="rotate(${a})">
-              <path d="M -65 0 L -52 -200 A 105 105 0 0 1 52 -200 L 65 0 Z"/>
-              <circle cx="0" cy="-200" r="105"/>
-              <circle cx="0" cy="-200" r="36" fill="${bg}"/>
-            </g>`).join("")}
-        </g>
-        <circle r="92" fill="url(#hh)" stroke="${shade(hub, -22)}" stroke-width="3"/>
-        <circle r="36" fill="${bg}"/>
-        <circle r="14" fill="${shade(bg, -20)}"/>
-      </g>
-    </g>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-};
-
-const tileSpinner = (lobe: string, hub: string, bg: string): string => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1066" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="t" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${shade(bg, 10)}"/>
-        <stop offset="100%" stop-color="${shade(bg, -15)}"/>
-      </linearGradient>
-    </defs>
-    <rect width="800" height="1066" fill="url(#t)"/>
-    <g transform="translate(400 533) rotate(15)">
-      <g fill="${lobe}" stroke="${shade(lobe, -22)}" stroke-width="2">
-        ${[0, 120, 240].map((a) => `
-          <g transform="rotate(${a})">
-            <path d="M -55 0 L -45 -180 A 95 95 0 0 1 45 -180 L 55 0 Z"/>
-            <circle cx="0" cy="-180" r="92"/>
-            <circle cx="0" cy="-180" r="32" fill="${bg}"/>
-          </g>`).join("")}
-      </g>
-      <circle r="78" fill="${hub}" stroke="${shade(hub, -22)}" stroke-width="2"/>
-      <circle r="30" fill="${bg}"/>
-    </g>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+/** Catalog of verified spinner photos. */
+const PHOTO = {
+  brownTri:    "1497040059851-bd928f851c43", // brown 3-blade in hand
+  blackHand:   "1514435542839-ed9380d2e9f6", // black spinner in use
+  rgbColor:    "1689771585619-9affa87b0937", // multicolored
+  redHang:     "1705770581857-8000ec4038f7", // red hanging
+  orangeBlur:  "1760507776802-358a3868cbb3", // orange-centred motion
+  whiteFlat:   "1589375845324-fe9937f820da", // white 3-blade flat
+  yellowSpin:  "1572160443732-cacabe8dddbd", // yellow spinner
+  silverRound: "1625842543470-8a49454e6e7d", // silver round
+  whiteFrame:  "1589391098324-7ee25cc8d721", // white plastic frame
+  whitePlastic:"1589375846044-251c5d655a53", // white plastic round
 };
 
 /* ─── Content ─────────────────────────────────────────────────── */
@@ -179,16 +70,16 @@ export const heroSlides = [
     eyebrow: "סדרת SPIN PRO 2026",
     title: "תסתובב. תרגע. תתרכז.",
     sub: "ספינרים בעיצוב פרימיום עם מיסבים קרמיים — סיבוב חלק עד 4 דקות, שקט מוחלט, גימור שלא מתנקש בכיס.",
-    cta: { label: "קנה לבית", href: "/shop/products?gender=women" },
-    ctaSecondary: { label: "קנה למשרד", href: "/shop/products?gender=men" },
-    image: heroSpinnerSvg("#F5C24A", "#1A1A1A", "#0F1115", "#26203A"),
+    cta: { label: "קנה לבית", href: "/shop/products?cat=metal" },
+    ctaSecondary: { label: "קנה למשרד", href: "/shop/products?tag=new" },
+    image: photo(PHOTO.brownTri, 2400),
   },
   {
     eyebrow: "טכנולוגיית CERAMIC CORE",
     title: "השקט שעוזר לך לחשוב.",
     sub: "מיסב קרמי ZrO₂ שמייצר פחות חיכוך ואפס רעש. מתאים לשעות ריכוז ארוכות במשרד או בלימודים.",
-    cta: { label: "גלה את הסדרה", href: "/shop/products?collection=pro" },
-    image: heroSpinnerSvg("#7AC8E8", "#0E2A3A", "#0A1822", "#0F3247"),
+    cta: { label: "גלה את הסדרה", href: "/shop/products?cat=metal" },
+    image: photo(PHOTO.silverRound, 2400),
   },
 ] as const;
 
@@ -200,10 +91,10 @@ export const announcements = [
 ];
 
 export const categories: Category[] = [
-  { slug: "classic", label: "קלאסי",     image: tileSpinner("#1A1A1A", "#7C7C7C", "#EFEAE2") },
-  { slug: "led",     label: "LED מואר",  image: tileSpinner("#A78BFA", "#FFFFFF", "#0E0B1F") },
-  { slug: "metal",   label: "מתכת",      image: tileSpinner("#B5A06B", "#5C4A22", "#1A1A1A") },
-  { slug: "pocket",  label: "פוקט מיני",  image: tileSpinner("#E25D3A", "#1A1A1A", "#F5EFE6") },
+  { slug: "classic", label: "קלאסי",      image: photo(PHOTO.blackHand, 1000) },
+  { slug: "led",     label: "LED מואר",   image: photo(PHOTO.rgbColor, 1000) },
+  { slug: "metal",   label: "מתכת",       image: photo(PHOTO.silverRound, 1000) },
+  { slug: "pocket",  label: "פוקט מיני",  image: photo(PHOTO.redHang, 1000) },
 ];
 
 export const activities: Activity[] = [
@@ -211,22 +102,17 @@ export const activities: Activity[] = [
     slug: "office",
     label: "במשרד",
     blurb: "ריכוז עמוק בשיחת זום ארוכה, פחות לחץ בידיים, יותר רעיונות בראש.",
-    image: tileSpinner("#3D7AB2", "#0F1B2C", "#E7E2D7"),
+    image: photo(PHOTO.whiteFrame, 1600),
   },
   {
     slug: "home",
     label: "בבית",
     blurb: "פינוק קטן ליום אחרי יום ארוך — שקט שלא מפריע לאף אחד אחר.",
-    image: tileSpinner("#C73E5A", "#1A1A1A", "#F5EFE6"),
+    image: photo(PHOTO.yellowSpin, 1600),
   },
 ];
 
-const variants = (lobe: string, hub: string, bg: string): string[] => [
-  spinnerSvg(lobe, hub, bg, 0),
-  spinnerSvg(lobe, hub, bg, 60),
-  spinnerSvg(lobe, hub, bg, 30),
-  spinnerSvg(lobe, hub, bg, 90),
-];
+const variants = (...ids: string[]): string[] => ids.map((id) => photo(id, 1200));
 
 const PRODUCTS: Product[] = [
   {
@@ -255,7 +141,7 @@ const PRODUCTS: Product[] = [
       { name: "אדום קלאסי", hex: "#A0322B" },
       { name: "כחול לילה",  hex: "#1E2A4A" },
     ],
-    images: variants("#1A1A1A", "#7C7C7C", "#EFEAE2"),
+    images: variants(PHOTO.blackHand, PHOTO.brownTri, PHOTO.whitePlastic, PHOTO.whiteFlat),
   },
   {
     slug: "spin-glow-led",
@@ -281,7 +167,7 @@ const PRODUCTS: Product[] = [
       { name: "שקוף עם RGB",  hex: "#E5E0F5" },
       { name: "ורוד עם RGB",  hex: "#D5A6CC" },
     ],
-    images: variants("#A78BFA", "#FFFFFF", "#0E0B1F"),
+    images: variants(PHOTO.rgbColor, PHOTO.yellowSpin, PHOTO.orangeBlur),
   },
   {
     slug: "spin-steel-pro",
@@ -307,7 +193,7 @@ const PRODUCTS: Product[] = [
       { name: "פלדה שחורה",  hex: "#2A2A2C" },
       { name: "פלדה כחולה",  hex: "#3D5A78" },
     ],
-    images: variants("#A8A8AC", "#3F3F42", "#16161A"),
+    images: variants(PHOTO.silverRound, PHOTO.whiteFrame, PHOTO.whitePlastic),
   },
   {
     slug: "spin-gold-brass",
@@ -333,7 +219,7 @@ const PRODUCTS: Product[] = [
       { name: "זהב מט",     hex: "#9C7C25" },
       { name: "ברונזה",     hex: "#A0703A" },
     ],
-    images: variants("#D4AF37", "#5C4A22", "#1A1A1A"),
+    images: variants(PHOTO.brownTri, PHOTO.yellowSpin, PHOTO.silverRound),
   },
   {
     slug: "spin-pocket-mini",
@@ -356,7 +242,7 @@ const PRODUCTS: Product[] = [
       { name: "ורוד אבק",   hex: "#D5A6A0" },
       { name: "אבן",        hex: "#D8CFB6" },
     ],
-    images: variants("#E25D3A", "#1A1A1A", "#F5EFE6"),
+    images: variants(PHOTO.redHang, PHOTO.orangeBlur, PHOTO.yellowSpin),
   },
   {
     slug: "spin-pro-ceramic",
@@ -382,7 +268,7 @@ const PRODUCTS: Product[] = [
       { name: "כחול מטאלי", hex: "#2C5282" },
       { name: "אדום מטאלי", hex: "#9B2C2C" },
     ],
-    images: variants("#4D4D4F", "#9A9A99", "#16161A"),
+    images: variants(PHOTO.whiteFrame, PHOTO.whitePlastic, PHOTO.silverRound),
   },
   {
     slug: "spin-tri-3-lobe",
@@ -403,7 +289,7 @@ const PRODUCTS: Product[] = [
       { name: "ירוק נפט",   hex: "#1F4A3F" },
       { name: "כחול לילה",  hex: "#1E2A4A" },
     ],
-    images: variants("#222222", "#888888", "#E7E2D7"),
+    images: variants(PHOTO.orangeBlur, PHOTO.blackHand, PHOTO.brownTri),
   },
   {
     slug: "spin-penta-5-lobe",
@@ -424,7 +310,7 @@ const PRODUCTS: Product[] = [
       { name: "טייטניום",    hex: "#5A5A5F" },
       { name: "רוז גולד",    hex: "#C8907A" },
     ],
-    images: variants("#B0B0B5", "#3A3A3F", "#0F0F12"),
+    images: variants(PHOTO.whiteFlat, PHOTO.silverRound, PHOTO.whiteFrame),
   },
 ];
 
