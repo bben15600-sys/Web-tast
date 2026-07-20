@@ -165,6 +165,21 @@ This step is **mandatory**. A brief without 3 named weaknesses + 1 missing
 question is sycophantic and FAILS. The self-critique exposes the limits of
 the development — anti-gaming against "everything is amazing" output.
 
+### Step 9: Offer the Next Move (single Hebrew message)
+
+After the self-critique, end the turn with ONE Hebrew message offering three
+concrete next moves. Do not assume — let the user choose:
+
+> **מה הלאה?**
+> 1. **לחדד סעיף בבריף** — ספר לי איזה סעיף ומה לא יושב.
+> 2. **להתחיל לבנות** — אסביר איזה סקיל מתאים: אתר → `landing-page-builder`
+>    או `web-design`; פרומפט → `skill-builder`; רעיון כללי → אעזור לנסח
+>    תוכנית פעולה.
+> 3. **לשמור ולסגור** — הבריף יישאר כאן, נחזור אליו בפעם הבאה.
+
+Do NOT auto-route to another skill. If the user picks option 2, name the
+suggested skill and stop — let the user invoke it themselves.
+
 ## The Re-Ask Protocol (BLOCKING GATE)
 
 When an answer FAILS the Depth Rubric, do this exactly:
@@ -183,13 +198,22 @@ When an answer FAILS the Depth Rubric, do this exactly:
 
 4. Ask the **same** question again, possibly with a sharper sub-probe.
 
-5. If the **second** answer also fails, offer to break the question into
-   2 smaller pieces, OR ask the user to talk through it out loud and you
-   will distill — but do NOT proceed with a third failure. Two failures
-   on a question = stop and escalate to the user explicitly.
+5. If the **second** answer also fails, do ONE of:
+   - **Break the question** into 2 smaller sub-prompts in Hebrew (e.g., for
+     Q2 ask the demographic first, then the "5 דקות לפני" separately) and
+     re-grade each sub-answer independently. If both sub-answers PASS, the
+     question PASSes.
+   - **Save the answer with a `[WEAK]` marker** and proceed. The weak answer
+     MUST then be named as weakness #1 in the Step 8 self-critique
+     ("ההנחה לגבי <Q-N> נשארה רכה — <מה חסר ספציפית>"). Do NOT silently
+     pass a weak answer; it has to surface later.
+   - Do NOT distill on the user's behalf and grade your own distillation —
+     that defeats the rubric.
 
-**Hard cap**: NEVER move from Question N to Question N+1 with a failing
-answer in scratchpad. No exceptions. No "we'll come back to this later".
+**Hard cap**: NEVER move from Question N to Question N+1 with an
+**ungraded** answer. A `[WEAK]`-marked answer that will be surfaced in the
+self-critique is allowed; an answer that simply failed the rubric and was
+ignored is not.
 
 ## Anti-Slop Mandates (User Output)
 
